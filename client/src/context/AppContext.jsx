@@ -7,7 +7,7 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
 
-    const currency = import.meta.VITE_CURRENCY;
+    const currency = import.meta.env.VITE_CURRENCY;
 
     const navigate = useNavigate();
     const [isSeller, setIsSeller] = useState(false)
@@ -15,6 +15,8 @@ export const AppContextProvider = ({ children }) => {
     const [products, setProducts] = useState([])
     const [showUserLogin, setShowUserLogin] = useState(false);
     const [cartItems, setCartItems] = useState({});
+    const [searchQuery, setSearchQuery] = useState({});
+
     
 
     // fetch all products
@@ -40,6 +42,28 @@ export const AppContextProvider = ({ children }) => {
     }
 
 
+    // Get cart item count
+    const getCartCount = () => {
+        let totalCount = 0;
+        for(const item in cartItems){
+            totalCount += cartItems[item];
+        } 
+        return totalCount;
+    }
+
+    // Get cart total price
+    const getCartTotalPrice = () => {
+        let totalPrice = 0;
+        for(const items in cartItems){
+            const itemInfo = products.find((product) => product._id === items);
+            if(cartItems[items] > 0){
+                totalPrice += itemInfo.offerPrice * cartItems[items];
+            }
+        }
+        return Math.floor(totalPrice * 100) / 100; // rounding to 2 decimal places
+    }
+
+
     // updated cart
     const updateCartItem = (itemId, quantity) => {
         let cardData = structuredClone(cartItems);
@@ -61,7 +85,7 @@ export const AppContextProvider = ({ children }) => {
         setCartItems(cardData);
     }
     
-    const value = {navigate,cartItems,  user, addTocart, updateCartItem, removeFromCart, setUser, currency, setShowUserLogin, showUserLogin, isSeller, setIsSeller, products, setProducts }
+    const value = {navigate, cartItems,  user, addTocart, updateCartItem, removeFromCart, setUser, currency, setShowUserLogin, showUserLogin, isSeller, setIsSeller, products, setProducts, searchQuery, setSearchQuery, getCartTotalPrice, getCartCount }
 
     return (
         <AppContext.Provider value={value}>
